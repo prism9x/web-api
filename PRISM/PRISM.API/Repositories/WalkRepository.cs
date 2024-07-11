@@ -27,12 +27,18 @@ namespace PRISM.API.Repositories
 
         public async Task<List<Walk>> GetAllAsync()
         {
-            return await context.Walks.Include("Difficulty").Include("Region").ToListAsync();
+            return await context.Walks
+                .Include("Difficulty")
+                .Include("Region")
+                .ToListAsync();
         }
 
         public async Task<Walk?> GetByIdAsync(Guid id)
         {
-            return await context.Walks.FirstOrDefaultAsync(x => x.Id == id);
+            return await context.Walks
+                .Include("Difficulty")
+                .Include("Region")
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Walk?> UpdateAsync(Guid id, Walk walk)

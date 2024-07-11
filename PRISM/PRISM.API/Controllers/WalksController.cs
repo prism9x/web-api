@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using PRISM.API.CustomActionFilter;
 using PRISM.API.Models.Domain;
 using PRISM.API.Models.DTOs.Walk;
 using PRISM.API.Repositories;
@@ -10,17 +11,6 @@ namespace PRISM.API.Controllers
     [ApiController]
     public class WalksController(IWalkRepository repo, IMapper mapper) : ControllerBase
     {
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] AddWalkRequestDTO addWalkRequestDTO)
-        {
-            // Map DTO to Model
-            var walkDomainModel = mapper.Map<Walk>(addWalkRequestDTO);
-            walkDomainModel = await repo.CreateAsync(walkDomainModel);
-            var walkDto = mapper.Map<Walk>(walkDomainModel);
-
-            return CreatedAtAction(nameof(GetById), new { id = walkDto.Id }, walkDto);
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -40,20 +30,21 @@ namespace PRISM.API.Controllers
             return Ok(mapper.Map<WalkDTO>(walkDomainModel));
         }
 
-        [HttpDelete]
-        [Route("{id:Guid}")]
-        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        [HttpPost]
+        [ValidateModel]
+        public async Task<IActionResult> Create([FromBody] AddWalkRequestDTO addWalkRequestDTO)
         {
-            var walkDomainModel = await repo.DeleteAsync(id);
-            if (walkDomainModel == null)
-            {
-                return NotFound();
-            }
-            return Ok(mapper.Map<WalkDTO>(walkDomainModel));
+            // Map DTO to Model
+            var walkDomainModel = mapper.Map<Walk>(addWalkRequestDTO);
+            walkDomainModel = await repo.CreateAsync(walkDomainModel);
+            var walkDto = mapper.Map<Walk>(walkDomainModel);
+
+            return CreatedAtAction(nameof(GetById), new { id = walkDto.Id }, walkDto);
         }
 
         [HttpPut]
         [Route("{id:Guid}")]
+        [ValidateModel]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateWalkRequestDTO updateWalkRequestDTO)
         {
             var walkDomainModel = mapper.Map<Walk>(updateWalkRequestDTO);
@@ -71,6 +62,18 @@ namespace PRISM.API.Controllers
             walkDomainModel.RegionId = updateWalkRequestDTO.RegionId;
             walkDomainModel.WalkImageUrl = updateWalkRequestDTO.WalkImageUrl;
 
+            return Ok(mapper.Map<WalkDTO>(walkDomainModel));
+        }
+
+        [HttpDelete]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            var walkDomainModel = await repo.DeleteAsync(id);
+            if (walkDomainModel == null)
+            {
+                return NotFound();
+            }
             return Ok(mapper.Map<WalkDTO>(walkDomainModel));
         }
     }

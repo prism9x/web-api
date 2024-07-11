@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using PRISM.API.CustomActionFilter;
 using PRISM.API.Models.Domain;
 using PRISM.API.Models.DTOs.Region;
 using PRISM.API.Repositories;
@@ -60,10 +61,9 @@ namespace PRISM.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
+        [ValidateModel]
         public async Task<IActionResult> Create([FromBody] AddRegionRequestDTO addRegionRequestDTO)
         {
-            // Request -> Domain Model
-            // Map, Convert DTO to Domain Model
             var regionDomainModel = mapper.Map<Region>(addRegionRequestDTO);
 
             regionDomainModel = await repo.CreateAsync(regionDomainModel);
@@ -75,6 +75,7 @@ namespace PRISM.API.Controllers
 
         [HttpPut]
         [Route("{id:Guid}")]
+        [ValidateModel]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDTO updateRegionRequestDTO)
         {
             var regionDomainModel = mapper.Map<Region>(updateRegionRequestDTO);
