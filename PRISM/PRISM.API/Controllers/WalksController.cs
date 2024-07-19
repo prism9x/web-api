@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PRISM.API.CustomActionFilter;
 using PRISM.API.Models.Domain;
@@ -9,6 +10,7 @@ namespace PRISM.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class WalksController(IWalkRepository repo, IMapper mapper) : ControllerBase
     {
         // /api/walks?filterOn=Name&filterQuery=Track&sortBy=Name&isAscending=true&pageNumber=1&pageSize=10

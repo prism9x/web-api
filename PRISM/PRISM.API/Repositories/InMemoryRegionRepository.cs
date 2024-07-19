@@ -14,17 +14,9 @@ namespace PRISM.API.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<List<Region>> GetAllAsync()
+        public Task<List<Region>> GetAllAsync()
         {
-            return new List<Region>(){
-                new Region()
-                {
-                    Id = Guid.NewGuid(),
-                    Code = "SAM",
-                    Name = "Sa Am Ma",
-                    RegionImageUrl = ""
-                }
-            };
+            throw new NotImplementedException();
         }
 
         public Task<Region?> GetByIdAsync(Guid id)
