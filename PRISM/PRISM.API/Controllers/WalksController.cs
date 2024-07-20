@@ -5,6 +5,7 @@ using PRISM.API.CustomActionFilter;
 using PRISM.API.Models.Domain;
 using PRISM.API.Models.DTOs.Walk;
 using PRISM.API.Repositories;
+using System.Net;
 
 namespace PRISM.API.Controllers
 {
@@ -20,6 +21,10 @@ namespace PRISM.API.Controllers
             [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 1000)
         {
             var walkDomainModel = await repo.GetAllAsync(filterOn, filterQuery, sortBy, isAscending ?? true, pageNumber, pageSize);
+
+            // Create an exception fake
+            // throw new Exception("This is a new exception");
+            
             return Ok(mapper.Map<List<WalkDTO>>(walkDomainModel));
         }
 

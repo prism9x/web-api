@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PRISM.API.Data;
 using PRISM.API.Mappings;
+using PRISM.API.Middlewares;
 using PRISM.API.Repositories;
+using Serilog;
 using System.Text;
 
 namespace PRISM.API
@@ -16,7 +19,16 @@ namespace PRISM.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Serilog
+            var logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.File("Logs/Prism_log.txt", rollingInterval: RollingInterval.Day)
+                .MinimumLevel.Information()
+                .CreateLogger();
+            builder.Logging.ClearProviders();
+            builder.Logging.AddSerilog(logger);
+
+
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -118,6 +130,8 @@ namespace PRISM.API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
 
             app.UseHttpsRedirection();
 

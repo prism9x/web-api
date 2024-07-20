@@ -10,15 +10,29 @@ namespace PRISM.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
-    public class RegionsController(IRegionRepository repo, IMapper mapper) : ControllerBase
+    public class RegionsController(
+        IRegionRepository repo, 
+        IMapper mapper, 
+        ILogger<RegionsController> logger) : ControllerBase
     {
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            // Get Data from Db
-            var regionsDomain = await repo.GetAllAsync();
-            return Ok(mapper.Map<List<RegionDTO>>(regionsDomain));
+            try
+            {
+                logger.LogInformation("GetAll Regions Action Method was invoked");
+                // Get Data from Db
+                var regionsDomain = await repo.GetAllAsync();
+
+                logger.LogWarning("Finished GetAll Regions Action Method was invoked");
+
+                return Ok(mapper.Map<List<RegionDTO>>(regionsDomain));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                throw;
+            }
         }
 
         [HttpGet]
