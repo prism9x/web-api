@@ -8,7 +8,7 @@ namespace PRISM.API.Models.DTOs.Auth
         [DataType(DataType.EmailAddress)]
         public string Username { get; set; }
         [Required]
-        [DataType(DataType.EmailAddress)]
+        [DataType(DataType.Password)]
         public string Password { get; set; }
         public string[] Roles { get; set; }
     }

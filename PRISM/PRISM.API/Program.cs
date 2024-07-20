@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using PRISM.API.Data;
 using PRISM.API.Mappings;
 using PRISM.API.Repositories;
@@ -20,7 +21,37 @@ namespace PRISM.API
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "PrismAPI", Version = "v1" });
+                options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = JwtBearerDefaults.AuthenticationScheme
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = JwtBearerDefaults.AuthenticationScheme
+                            },
+                            Scheme = "Oauth2",
+                            In = ParameterLocation.Header
+                        },
+                        new List<string>()
+                    }
+                });
+            });
+
+
+
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString"));
@@ -33,7 +64,7 @@ namespace PRISM.API
 
             builder.Services.AddScoped<IRegionRepository, RegionRepository>();
             builder.Services.AddScoped<IWalkRepository, WalkRepository>();
-
+            builder.Services.AddScoped<ITokenRepository, TokenRepository>();
             // Việc thay thế database khi có sự thay đổi dễ dàng khi triển khai repository
             // Như đoạn code dưới thì đổi từ thao tác với các Entity trong sql thì ta cũng có thể thao tác với
             // một implementation giả cho việc testing, vì vậy không cần chuẩn bị một cơ sở dữ liệu có sẵn
@@ -57,7 +88,7 @@ namespace PRISM.API
                 options.Password.RequiredLength = 6;
                 options.Password.RequiredUniqueChars = 1;
             });
-
+            
 
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

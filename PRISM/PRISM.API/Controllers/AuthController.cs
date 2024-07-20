@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PRISM.API.Models.DTOs.Auth;
+using PRISM.API.Repositories;
 
 namespace PRISM.API.Controllers
 {
@@ -10,11 +11,13 @@ namespace PRISM.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ITokenRepository _tokenRepositor;
 
         //private readonly UserManager<IdentityUser> userManager = userManager;
-        public AuthController(UserManager<IdentityUser> userManager)
+        public AuthController(UserManager<IdentityUser> userManager, ITokenRepository tokenRepository)
         {
             _userManager = userManager;
+            _tokenRepositor = tokenRepository;
         }
 
         // POST: /api/Auth/Register
@@ -49,7 +52,6 @@ namespace PRISM.API.Controllers
         // POST: /api/Auth/Login
         [HttpPost]
         [Route("Login")]
-
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)
         {
             var user = await _userManager.FindByEmailAsync(loginRequestDTO.Username);
@@ -58,13 +60,22 @@ namespace PRISM.API.Controllers
                 var checkPassResult = await _userManager.CheckPasswordAsync(user, loginRequestDTO.Password);
                 if (checkPassResult)
                 {
-                    // Create Token
 
+                    // Get Roles for this user
 
-
-
-                    return Ok();
+                    var roles = await _userManager.GetRolesAsync(user);
+                    if (roles != null)
+                    {
+                        // Create Token
+                        var jwtToken =  _tokenRepositor.CreateJwtToken(user, roles.ToList());
+                        var response = new LoginResponseDTO
+                        {
+                            JwtToken = jwtToken
+                        };
+                        return Ok(response);
+                    }
                 }
+                return BadRequest("Password incorrect");
             }
 
             return BadRequest("Username or password incorrect");
